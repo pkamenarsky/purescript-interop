@@ -347,6 +347,8 @@ commonPurescriptImports = intercalate "\n"
   , "import Control.Monad.Aff"
   , "import Prelude"
   , ""
+  , "type Text = String"
+  , ""
   , ""
   ]
 
