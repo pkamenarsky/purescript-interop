@@ -340,6 +340,7 @@ commonPurescriptImports = intercalate "\n"
   , "import Control.Monad.Aff"
   , "import Prelude"
   , ""
+  , ""
   ]
 
 {- This all is needed for Type to be a JSON instance
