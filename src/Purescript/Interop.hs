@@ -113,7 +113,9 @@ mkExports out ts = do
            ++ mkConstraints "ToJSON" tyvars
            ++ " ToJSON (" ++ nameBase n ++ " "
            ++ intercalate " " (map mkTyVar tyvars) ++ ") where\n"
-        , "  toJSON (" ++ conToName con ++ " x) = toJSON x"
+        , case con of
+            NormalC _ _ -> "  toJSON (" ++ conToName con ++ " x) = toJSON x"
+            RecC _ _ -> mkConToJson con
         ]
       mkToJson (DataD _ n tyvars cons _) = concat
         [ "instance " ++ firstToLower (nameBase n) ++ "ToJson :: "
@@ -160,7 +162,9 @@ mkExports out ts = do
            ++ " FromJSON (" ++ nameBase n ++ " "
            ++ intercalate " " (map mkTyVar tyvars)
            ++ ") where\n"
-        , "  parseJSON x = " ++ conToName con ++ " <$> parseJSON x"
+        , case con of
+            NormalC _ _ -> "  parseJSON x = " ++ conToName con ++ " <$> parseJSON x"
+            RecC _ _ -> "  parseJSON (JObject o) = do\n" ++ mkConFromJson False con
         ]
       mkFromJson (DataD _ n tyvars cons _) = concat
         [ "instance " ++ firstToLower (nameBase n) ++ "FromJson :: "
