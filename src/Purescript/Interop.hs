@@ -49,8 +49,8 @@ parseCall (Object o) = do
   return (call, version, args)
 parseCall _ = fail "Could not parse RPC call"
 
-mkExports :: [Name] -> Q [Dec]
-mkExports ts = do
+mkExports :: [Name] -> Maybe FilePath -> Q [Dec]
+mkExports ts file = do
   exports <- forM ts $ \t -> do
     TyConI dec <- reify t
     return $ mkExport dec
@@ -59,11 +59,17 @@ mkExports ts = do
           ++ "\n\n"
           ++ mkFromJson dec
 
-  exports <- valD (varP $ mkName "rpcExports")
-                  (normalB $ litE $ stringL $ commonPurescriptImports ++ intercalate "\n\n" exports)
-                  []
+  let exports' = commonPurescriptImports ++ intercalate "\n\n" exports
 
-  return [exports]
+  exportsDec <- valD (varP $ mkName "rpcExports")
+                     (normalB $ litE $ stringL exports')
+                     []
+
+  case file of
+    Just path -> runIO $ writeFile path exports'
+    Nothing -> return ()
+
+  return [exportsDec]
 
     where
       mkExport (NewtypeD _ n tyvars con _)
