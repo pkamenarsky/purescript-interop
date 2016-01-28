@@ -49,8 +49,8 @@ parseCall (Object o) = do
   return (call, version, args)
 parseCall _ = fail "Could not parse RPC call"
 
-mkExports :: [Name] -> Maybe FilePath -> Q [Dec]
-mkExports ts file = do
+mkExports :: Maybe (String, FilePath) -> [Name] -> Q [Dec]
+mkExports out ts = do
   exports <- forM ts $ \t -> do
     TyConI dec <- reify t
     return $ mkExport dec
@@ -65,8 +65,8 @@ mkExports ts file = do
                      (normalB $ litE $ stringL exports')
                      []
 
-  case file of
-    Just path -> runIO $ writeFile path exports'
+  case out of
+    Just (imports, path) -> runIO $ writeFile path (imports ++ exports')
     Nothing -> return ()
 
   return [exportsDec]
