@@ -53,7 +53,8 @@ mkExports :: [Name] -> Q [Dec]
 mkExports ts = do
   exports <- forM ts $ \t -> do
     TyConI dec <- reify t
-    return $ mkExport dec
+    return $ commonPurescriptImports
+          ++ mkExport dec
           ++ "\n\n"
           ++ mkToJson dec
           ++ "\n\n"
@@ -326,6 +327,21 @@ genPurescriptRpcs = concatMap gen
     genSig [x, r] = genSig [x] ++ " -> Aff (websocket :: Socket.WebSocket | eff) " ++ genSig [r]
     genSig (x:xs) = genSig [x] ++ " -> " ++ genSig xs
     genSig [] = ""
+
+commonPurescriptImports :: String
+commonPurescriptImports = intercalate "\n"
+  [ "module Shared.RPC where"
+  , "import Common"
+  , "import Data.JSON"
+  , "import Data.Either"
+  , "import Data.Maybe"
+  , "import Data.List (List ())"
+  , "import Data.Tuple"
+  , "import Data.Set (Set ())"
+  , "import Control.Monad.Aff"
+  , "import Prelude"
+  , ""
+  ]
 
 {- This all is needed for Type to be a JSON instance
 
