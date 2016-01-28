@@ -53,15 +53,14 @@ mkExports :: [Name] -> Q [Dec]
 mkExports ts = do
   exports <- forM ts $ \t -> do
     TyConI dec <- reify t
-    return $ commonPurescriptImports
-          ++ mkExport dec
+    return $ mkExport dec
           ++ "\n\n"
           ++ mkToJson dec
           ++ "\n\n"
           ++ mkFromJson dec
 
   exports <- valD (varP $ mkName "rpcExports")
-                  (normalB $ litE $ stringL $ intercalate "\n\n" exports)
+                  (normalB $ litE $ stringL $ commonPurescriptImports ++ intercalate "\n\n" exports)
                   []
 
   return [exports]
