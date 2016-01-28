@@ -337,7 +337,6 @@ commonPurescriptImports :: String
 commonPurescriptImports = intercalate "\n"
   [ ""
   , ""
-  , "import Common"
   , "import Data.JSON"
   , "import Data.Either"
   , "import Data.Maybe"
