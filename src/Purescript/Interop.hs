@@ -335,7 +335,8 @@ genPurescriptRpcs = concatMap gen
 
 commonPurescriptImports :: String
 commonPurescriptImports = intercalate "\n"
-  [ "module Shared.RPC where"
+  [ ""
+  , ""
   , "import Common"
   , "import Data.JSON"
   , "import Data.Either"
