@@ -93,6 +93,7 @@ mkExports out ts = do
       mkType (ConT n) = nameBase n
       mkType (VarT a) = takeWhile (/= '_') $ nameBase a
       mkType (AppT f x) = "(" ++ mkType f ++ " " ++ mkType x ++ ")"
+      mkType (TupleT 0) = "Unit "
       mkType (TupleT 2) = "Tuple "
       mkType (TupleT n) = "Tuple" ++ show n ++ " "
       mkType ListT = "Array "
