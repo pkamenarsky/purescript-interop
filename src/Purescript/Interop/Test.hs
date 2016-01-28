@@ -6,4 +6,4 @@ import Purescript.Interop
 
 newtype Session = Session { unSession :: String }
 
-mkExports Nothing [ ''Session ]
+mkExports Nothing [ (''Session, True) ]

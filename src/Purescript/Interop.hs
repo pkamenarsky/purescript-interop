@@ -49,15 +49,14 @@ parseCall (Object o) = do
   return (call, version, args)
 parseCall _ = fail "Could not parse RPC call"
 
-mkExports :: Maybe (String, FilePath) -> [Name] -> Q [Dec]
+mkExports :: Maybe (String, FilePath) -> [(Name, Bool)] -> Q [Dec]
 mkExports out ts = do
-  exports <- forM ts $ \t -> do
+  exports <- forM ts $ \(t, json) -> do
     TyConI dec <- reify t
     return $ mkExport dec
-          ++ "\n\n"
-          ++ mkToJson dec
-          ++ "\n\n"
-          ++ mkFromJson dec
+          ++ if json
+               then "\n\n" ++ mkToJson dec ++ "\n\n" ++ mkFromJson dec
+               else ""
 
   let exports' = commonPurescriptImports ++ intercalate "\n\n" exports
 
