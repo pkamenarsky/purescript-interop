@@ -138,7 +138,7 @@ mkExports out ts = do
         [ "  toJSON (" ++ nameBase n ++ " " ++ intercalate " " vars' ++ ") = object $\n"
         , "    [ \"tag\" .= \"" ++ nameBase n ++ "\"\n"
         , if null vars
-            then "    , \"contents\" .= ([] :: Array String)\n"
+            then "    , \"contents\" .= {}\n"
             else "    , \"contents\" .= " ++ wrapContent vars (intercalate ", " (map ("toJSON " ++) vars')) ++ "\n"
         , "    ]\n"
         ]
