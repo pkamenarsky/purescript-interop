@@ -138,7 +138,7 @@ mkExports out ts = do
         [ "  toJSON (" ++ nameBase n ++ " " ++ intercalate " " vars' ++ ") = object $\n"
         , "    [ \"tag\" .= \"" ++ nameBase n ++ "\"\n"
         , if null vars
-            then "    , \"contents\" .= object []\n"
+            then "    , \"contents\" .= ([] :: Array String)\n"
             else "    , \"contents\" .= " ++ wrapContent vars (intercalate ", " (map ("toJSON " ++) vars')) ++ "\n"
         , "    ]\n"
         ]
@@ -171,16 +171,24 @@ mkExports out ts = do
            ++ " FromJSON (" ++ nameBase n ++ " "
            ++ intercalate " " (map mkTyVar tyvars)
            ++ ") where\n"
-        , "  parseJSON (JObject o) = do\n"
-        , if length cons > 1
-            then concat
-              [ "    tag <- o .: \"tag\"\n"
-              , "    case tag of\n"
+        , if length cons == 1 && (isNullaryCon $ head cons)
+            then "  parseJSON _ = do\n"
+            else concat
+              [ "  parseJSON (JObject o) = do\n"
+              , if length cons > 1
+                  then concat
+                    [ "    tag <- o .: \"tag\"\n"
+                    , "    case tag of\n"
+                    ]
+                  else ""
               ]
-            else ""
         , concatMap (mkConFromJson (length cons > 1)) cons
         ]
       mkFromJson (TySynD n tyvars t) = ""
+
+      isNullaryCon (RecC n []) = True
+      isNullaryCon (NormalC n []) = True
+      isNullaryCon _ = False
 
       mkConFromJson useCase (RecC n vars) = concat
         [ if useCase then "      \"" ++ nameBase n ++ "\" -> do\n" else ""
