@@ -163,7 +163,8 @@ mkExports out ts = do
            ++ ") where\n"
         , case con of
             NormalC _ _ -> "  parseJSON x = " ++ conToName con ++ " <$> parseJSON x"
-            RecC _ _ -> "  parseJSON (JObject o) = do\n" ++ mkConFromJson False con
+            RecC _ _ -> "  parseJSON (JObject o) = do\n" ++ mkConFromJson False con ++ "\n"
+                     ++ "  parseJSON x = fail $ \"Could not parse object: \" ++ show x"
         ]
       mkFromJson (DataD _ n tyvars cons _) = concat
         [ "instance " ++ firstToLower (nameBase n) ++ "FromJson :: "
@@ -183,6 +184,9 @@ mkExports out ts = do
                   else ""
               ]
         , concatMap (mkConFromJson (length cons > 1)) cons
+        , if length cons == 1 && (isNullaryCon $ head cons)
+            then ""
+            else "  parseJSON x = fail $ \"Could not parse object: \" ++ show x"
         ]
       mkFromJson (TySynD n tyvars t) = ""
 
