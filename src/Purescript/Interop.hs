@@ -59,13 +59,15 @@ mkExports out ts = do
                else ""
 
   let exports' = commonPurescriptImports ++ intercalate "\n\n" exports
+      handleAll :: SomeException -> IO ()
+      handleAll _ = return ()
 
   exportsDec <- valD (varP $ mkName "rpcExports")
                      (normalB $ litE $ stringL exports')
                      []
 
   case out of
-    Just (header, footer, path) -> runIO $ writeFile path (header ++ exports' ++ footer)
+    Just (header, footer, path) -> runIO $ handle handleAll $ writeFile path (header ++ exports' ++ footer)
     Nothing -> return ()
 
   return [exportsDec]
